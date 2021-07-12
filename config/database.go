@@ -14,6 +14,7 @@ var (
 	DB *sql.DB
 )
 
+// Initializes the database connection with the variables from .env file
 func InitDB() {
 	err := godotenv.Load(".env")
 	if err != nil {

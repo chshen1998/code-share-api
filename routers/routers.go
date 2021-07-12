@@ -18,6 +18,7 @@ var (
 	responseController controllers.ResponseController = controllers.NewResponseController(responseService)
 )
 
+// Initializes all the endpoints in the rest api and set up CORS
 func InitRouter() *gin.Engine {
 	r := gin.Default()
 
@@ -28,6 +29,7 @@ func InitRouter() *gin.Engine {
 
 	r.Use(sessions.Sessions("mysession", sessions.NewCookieStore([]byte("secret"))))
 
+	// Endpoints related to authenication
 	authRoutes := r.Group("/auth")
 	{
 		authRoutes.POST("/signup", controllers.SignUp)
@@ -36,6 +38,7 @@ func InitRouter() *gin.Engine {
 		authRoutes.GET("/get-session", controllers.GetSession)
 	}
 
+	// Endpoints that do not require user to be authenicated
 	apiRoutes := r.Group("/api")
 	{
 		apiRoutes.GET("/posts", func(context *gin.Context) {
@@ -55,6 +58,7 @@ func InitRouter() *gin.Engine {
 		})
 	}
 
+	// Endpointst that require user to be authenicated
 	apiPrivateRoutes := r.Group("/api/private")
 	apiPrivateRoutes.Use(controllers.AuthRequired)
 	{

@@ -9,6 +9,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+// Signs up a new account with the given username, email and password
 func SignUp(context *gin.Context) {
 	var newUser models.User
 	err := context.ShouldBindJSON(&newUser)
@@ -22,6 +23,8 @@ func SignUp(context *gin.Context) {
 	context.JSON(http.StatusCreated, gin.H{"message": "Successfully signed up"})
 }
 
+// Verifies the input email and password, logs in the user if the email and password match.
+// Returns the id, username, email and password of logged in user.
 func Login(context *gin.Context) {
 	var user models.User
 	context.ShouldBindJSON(&user)
@@ -47,6 +50,7 @@ func Login(context *gin.Context) {
 	context.JSON(http.StatusAccepted, models.User{userId, username, user.Email, user.Password})
 }
 
+// Logs out the user
 func Logout(context *gin.Context) {
 	session := sessions.Default(context)
 	userId := session.Get("userId")
@@ -60,6 +64,7 @@ func Logout(context *gin.Context) {
 	context.JSON(http.StatusOK, gin.H{"message": "Sucessfully logged out"})
 }
 
+// Checks if the user session is still persistent and if so, returns the user information
 func GetSession(context *gin.Context) {
 	session := sessions.Default(context)
 	userId := session.Get("userId")
@@ -71,14 +76,13 @@ func GetSession(context *gin.Context) {
 	context.JSON(http.StatusOK, gin.H{"sessionFound": true, "userId": userId, "username": username})
 }
 
+// Checks if the user is logged in and aborts the request if user is not logged in
 func AuthRequired(c *gin.Context) {
 	session := sessions.Default(c)
 	userId := session.Get("userId")
 	if userId == nil {
-		// Abort the request with the appropriate error code
 		c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "unauthorized"})
 		return
 	}
-	// Continue down the chain to handler etc
 	c.Next()
 }
