@@ -23,11 +23,8 @@ var (
 func InitRouter() *gin.Engine {
 	r := gin.Default()
 
-	corsConfig := cors.DefaultConfig()
-	corsConfig.AllowAllOrigins = true
-	corsConfig.AllowCredentials = true
-	corsConfig.AllowCredentials = true
-	r.Use(cors.New(corsConfig))
+	corsConfig := cors.Default()
+	r.Use(corsConfig)
 
 	store := cookie.NewStore([]byte("secret"))
 	r.Use(sessions.Sessions("mysession", store))
