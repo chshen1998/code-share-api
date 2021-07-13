@@ -26,6 +26,7 @@ func InitRouter() *gin.Engine {
 	corsConfig := cors.DefaultConfig()
 	corsConfig.AllowAllOrigins = true
 	corsConfig.AllowCredentials = true
+	corsConfig.AllowCredentials = true
 	r.Use(cors.New(corsConfig))
 
 	store := cookie.NewStore([]byte("secret"))
