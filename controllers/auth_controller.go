@@ -1,11 +1,11 @@
 package controllers
 
 import (
-	"gin_project/config"
 	"gin_project/models"
 	"gin_project/services"
 	"net/http"
 
+	"github.com/gin-contrib/sessions"
 	"github.com/gin-gonic/gin"
 )
 
@@ -28,6 +28,7 @@ func SignUp(context *gin.Context) {
 func Login(context *gin.Context) {
 	var user models.User
 	context.ShouldBindJSON(&user)
+	session := sessions.Default(context)
 
 	userId, username, passwordDB := services.GetUser(user.Email)
 	if userId == 0 {
@@ -40,40 +41,49 @@ func Login(context *gin.Context) {
 		return
 	}
 
-	config.RDB.Set(context, "userId", userId, 0)
-	config.RDB.Set(context, "username", username, 0)
+	session.Set("userId", userId)
+	session.Set("username", username)
+	if err := session.Save(); err != nil {
+		context.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to save session"})
+		return
+	}
 
 	context.JSON(http.StatusAccepted, models.User{userId, username, user.Email, user.Password})
 }
 
 // Logs out the user
 func Logout(context *gin.Context) {
-	_, err := config.RDB.Get(context, "userId").Result()
-	if err != nil {
+	session := sessions.Default(context)
+	userId := session.Get("userId")
+	if userId == nil {
 		context.JSON(http.StatusBadRequest, gin.H{"error": "Invalid session key"})
 		return
 	}
-	config.RDB.Del(context, "userId", "username")
+	session.Delete("userId")
+	session.Delete("username")
+	session.Save()
 	context.JSON(http.StatusOK, gin.H{"message": "Sucessfully logged out"})
 }
 
 // Checks if the user session is still persistent and if so, returns the user information
 func GetSession(context *gin.Context) {
-	userId, err := config.RDB.Get(context, "userId").Result()
-	if err != nil {
+	session := sessions.Default(context)
+	userId := session.Get("userId")
+	if userId == nil {
 		context.JSON(http.StatusOK, gin.H{"sessionFound": false})
 		return
 	}
-	username, _ := config.RDB.Get(context, "username").Result()
+	username := session.Get("username")
 	context.JSON(http.StatusOK, gin.H{"sessionFound": true, "userId": userId, "username": username})
 }
 
 // Checks if the user is logged in and aborts the request if user is not logged in
-func AuthRequired(context *gin.Context) {
-	_, err := config.RDB.Get(context, "userId").Result()
-	if err != nil {
-		context.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "unauthorized"})
+func AuthRequired(c *gin.Context) {
+	session := sessions.Default(c)
+	userId := session.Get("userId")
+	if userId == nil {
+		c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "unauthorized"})
 		return
 	}
-	context.Next()
+	c.Next()
 }

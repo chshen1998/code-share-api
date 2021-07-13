@@ -4,14 +4,16 @@ import (
 	"gin_project/config"
 	"gin_project/routers"
 
-	_ "github.com/lib/pq"
+	"github.com/gin-contrib/sessions"
+	"github.com/gin-contrib/sessions/redis"
 )
 
 func main() {
-	config.InitRedis()
 	config.InitDB()
 	defer config.DB.Close()
 
 	r := routers.InitRouter()
-	r.Run() // listen and serve on 0.0.0.0:8080 (for windows "localhost:8080")
+	store, _ := redis.NewStore(10, "tcp", "localhost:6379", "", []byte("secret"))
+	r.Use(sessions.Sessions("mysession", store))
+	r.Run()
 }
