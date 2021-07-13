@@ -7,7 +7,8 @@ import (
 	"gin_project/services"
 
 	"github.com/gin-contrib/cors"
-	"github.com/gin-gonic/contrib/sessions"
+	"github.com/gin-contrib/sessions"
+	"github.com/gin-contrib/sessions/cookie"
 	"github.com/gin-gonic/gin"
 )
 
@@ -27,7 +28,8 @@ func InitRouter() *gin.Engine {
 	corsConfig.AllowCredentials = true
 	r.Use(cors.New(corsConfig))
 
-	r.Use(sessions.Sessions("mysession", sessions.NewCookieStore([]byte("secret"))))
+	store := cookie.NewStore([]byte("secret"))
+	r.Use(sessions.Sessions("mysession", store))
 
 	// Endpoints related to authenication
 	authRoutes := r.Group("/auth")
