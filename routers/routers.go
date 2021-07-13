@@ -18,7 +18,7 @@ var (
 	responseController controllers.ResponseController = controllers.NewResponseController(responseService)
 )
 
-// Initializes all the endpoints in the rest api and set up CORS
+// Initializes all the endpoints in the rest api and set up CORS.
 func InitRouter() *gin.Engine {
 	r := gin.Default()
 

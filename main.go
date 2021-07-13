@@ -8,6 +8,7 @@ import (
 )
 
 func main() {
+	config.InitRedis()
 	config.InitDB()
 	defer config.DB.Close()
 
