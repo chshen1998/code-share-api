@@ -68,7 +68,7 @@ func (service *PostServiceImpl) Delete(postId int) error {
 
 func (service *PostServiceImpl) FindFiltered(keywords string, languagef string) []models.Post {
 	var title, description, code, authorName, language string
-	var id, likesCount int
+	var id int
 	var posts []models.Post
 	var sqlStatement string
 
@@ -79,11 +79,11 @@ func (service *PostServiceImpl) FindFiltered(keywords string, languagef string) 
 	}
 	rows, _ := config.DB.Query(sqlStatement)
 	for rows.Next() {
-		err := rows.Scan(&id, &title, &description, &code, &authorName, &language, &likesCount)
+		err := rows.Scan(&id, &title, &description, &code, &authorName, &language)
 		if err != nil {
 			panic(err)
 		}
-		posts = append(posts, models.Post{id, title, description, code, authorName, language, likesCount})
+		posts = append(posts, models.Post{id, title, description, code, authorName, language, 2})
 	}
 	return posts
 }

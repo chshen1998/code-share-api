@@ -9,8 +9,9 @@ import (
 
 func main() {
 	config.InitDB()
+	config.InitRedis()
 	defer config.DB.Close()
 
 	r := routers.InitRouter()
-	r.Run() // listen and serve on 0.0.0.0:8080 (for windows "localhost:8080")
+	r.Run() // listen and serve on localhost:8080
 }
